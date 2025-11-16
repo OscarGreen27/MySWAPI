@@ -30,7 +30,7 @@ import { PeopleVehicleEntity } from './entities/people_vehicle/people_vehicle.en
 import { PlanetResidentModule } from './entities/planest_resident/planet_resident.module';
 import { PlanetResidentEntity } from './entities/planest_resident/planet_resident.entity';
 import { PeopleSpecieModule } from './entities/people_specie/people_specie.module';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionFilter } from './exception_filter/all-exception.filter';
 import { UserEntity } from './entities/user/user.entity';
 import { AuthModule } from './auth/auth.module';
@@ -65,8 +65,8 @@ import { FilmVehicleModule } from './entities/film_vehicle/film_vehicle.module';
         type: 'postgres',
         host: configService.get('DB_HOST', 'localhost'),
         port: configService.get<number>('DB_PORT', 3333),
-        username: configService.get('DB_USERNAME', 'postgress'),
-        password: configService.get('DB_PASSWORD', 'postgress'),
+        username: configService.get('DB_USERNAME', 'postgres'),
+        password: configService.get('DB_PASSWORD', 'postgres'),
         database: configService.get('DB_NAME', 'starwars'),
         entities: [
           People,
