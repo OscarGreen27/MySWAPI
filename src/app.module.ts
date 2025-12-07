@@ -63,7 +63,7 @@ import { FilmVehicleModule } from './entities/film_vehicle/film_vehicle.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('DB_HOST', 'localhost'),
+        host: configService.get('DB_HOST', 'host.docker.internal'),
         port: configService.get<number>('DB_PORT', 3333),
         username: configService.get('DB_USERNAME', 'postgres'),
         password: configService.get('DB_PASSWORD', 'postgres'),
