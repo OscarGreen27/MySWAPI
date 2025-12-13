@@ -8,7 +8,7 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('API Документація')
-    .setDescription('Опис REST API ')
+    .setDescription('Опис REST API teamcity test')
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('Api')
