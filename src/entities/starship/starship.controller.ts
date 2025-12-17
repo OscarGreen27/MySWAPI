@@ -3,7 +3,7 @@ import { StarshipService } from './starship.service';
 import { CreateStarshipDto } from './dto/create-starship.dto';
 import { UpdateStarshipDto } from './dto/update-starship.dto';
 
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Starships } from './starship.entity';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { Roles } from 'src/decorators/role.decorator';
@@ -17,17 +17,14 @@ import { RoleGuard } from 'src/auth/guards/role.guards';
 export class StarshipController {
   constructor(private readonly starshipServise: StarshipService) {}
 
-  /**
-   *function request handler get to endpoint starship.
-   *if pagination parameters are not specified, default parameters will be used
-   * @param page page number
-   * @param limit number of objects on one page
-   * @returns array of entities films
-   */
   @Get()
   @Roles(Role.Admin, Role.User)
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiOperation({
+    summary: 'Get a list of starships',
+    description: 'Returns all starships or a paginated list if page and limit query parameters are provided',
+  })
   async get(
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
@@ -38,47 +35,42 @@ export class StarshipController {
     return this.starshipServise.getSeveral(page || 1, limit || 10);
   }
 
-  /**
-   * function processes the request with the id parameter
-   * @param id starship id
-   * @returns entity staship if there is a match by id, null if there is no corresponding id in the database
-   */
   @Get(':id')
   @Roles(Role.Admin, Role.User)
+  @ApiOperation({
+    summary: 'Get a starship by ID',
+    description: 'Returns a single starship entity by its ID. Returns null if the starship is not found',
+  })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.starshipServise.getOne(id);
   }
 
-  /**
-   *The function processes a request to create a new starship in the database.
-   * @param starship object with fields that correspond to CreateStarshipDto
-   * @returns void
-   */
   @Post()
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Create a new starship',
+    description: 'Adds a new starship to the database. Admin role required',
+  })
   async create(@Body() starship: CreateStarshipDto) {
     return await this.starshipServise.create(starship);
   }
 
-  /**
-   *put query handler function for editing entities starship
-   * @param id starship ID to which changes need to be made
-   * @param starship object with new values for a specific film
-   * @returnsa starship with new meanings
-   */
   @Put(':id')
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Update a starship',
+    description: 'Updates an existing starship by its ID. Admin role required. All fields are optional.',
+  })
   async update(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) film: UpdateStarshipDto) {
     return this.starshipServise.update(id, film);
   }
 
-  /**
-   * starship delete request handler function
-   * @param id starship id
-   * @returns true if film deleted success, false if not
-   */
   @Delete(':id')
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Delete a starship',
+    description: 'Deletes a starship by its ID. Returns true if deletion was successful. Admin role required',
+  })
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.starshipServise.delete(id);
   }

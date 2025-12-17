@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Delete, UseGuards } from '@nestjs/common';
 import { FilmPlanetService } from './film_planet.service';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilmPlanetDto } from './film_planet.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { Roles } from 'src/decorators/role.decorator';
@@ -16,14 +16,22 @@ export class FilmPlanetController {
 
   @Post()
   @Roles(Role.Admin)
-  @ApiBody({ type: FilmPlanetDto })
+  @ApiOperation({
+    summary: 'Assign a planet to a film',
+    description: 'Creates a link between a film and a planet. Admin only.',
+  })
+  @ApiBody({ type: FilmPlanetDto, description: 'Film and Planet IDs to link' })
   async create(@Body('data') data: FilmPlanetDto) {
     return await this.filmPlanetService.create(data);
   }
 
   @Delete()
   @Roles(Role.Admin)
-  @ApiBody({ type: FilmPlanetDto })
+  @ApiOperation({
+    summary: 'Remove a planet from a film',
+    description: 'Deletes the link between a film and a planet. Admin only.',
+  })
+  @ApiBody({ type: FilmPlanetDto, description: 'Film and Planet IDs to unlink' })
   async delete(@Body('data') data: FilmPlanetDto) {
     return await this.filmPlanetService.delete(data);
   }

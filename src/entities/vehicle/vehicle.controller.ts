@@ -3,10 +3,12 @@ import { VehicleService } from './vehicle.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 
-import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Vehicles } from './vehicle.entity';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { RoleGuard } from 'src/auth/guards/role.guards';
+import { Roles } from 'src/decorators/role.decorator';
+import { Role } from 'src/enum/role.enum';
 
 @ApiBearerAuth()
 @ApiTags('Vehicles')
@@ -15,16 +17,11 @@ import { RoleGuard } from 'src/auth/guards/role.guards';
 export class VehicleController {
   constructor(private readonly VehicleServise: VehicleService) {}
 
-  /**
-   *function request handler get to endpoint vehicles.
-   *if pagination parameters are not specified, default parameters will be used
-   * @param page page number
-   * @param limit number of objects on one page
-   * @returns array of entities vehicles
-   */
   @Get()
+  @Roles(Role.Admin, Role.User)
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiOperation({ summary: 'Get vehicles', description: 'Returns all vehicles or a paginated list' })
   async get(
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
@@ -35,43 +32,32 @@ export class VehicleController {
     return this.VehicleServise.getSeveral(page || 1, limit || 10);
   }
 
-  /**
-   * function processes the request with the id parameter
-   * @param id vehicle id
-   * @returns entity vehicle if there is a match by id, null if there is no corresponding id in the database
-   */
   @Get(':id')
+  @Roles(Role.Admin, Role.User)
+  @ApiOperation({ summary: 'Get vehicle by ID', description: 'Returns a single vehicle or null if not found' })
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.VehicleServise.getOne(id);
   }
 
-  /**
-   *The function processes a request to create a new vehicle in the database.
-   * @param film object with fields that correspond to CreateFilmDto
-   * @returns void
-   */
   @Post()
+  @Roles(Role.Admin)
+  @ApiBody({ type: CreateVehicleDto })
+  @ApiOperation({ summary: 'Create vehicle', description: 'Adds a new vehicle to the database' })
   async create(@Body() vehicle: CreateVehicleDto) {
     return await this.VehicleServise.create(vehicle);
   }
 
-  /**
-   *put query handler function for editing entities vehicle
-   * @param id vehicle ID to which changes need to be made
-   * @param vehicle object with new values for a specific film
-   * @returnsa vehicle with new meanings
-   */
   @Put(':id')
+  @Roles(Role.Admin)
+  @ApiBody({ type: UpdateVehicleDto })
+  @ApiOperation({ summary: 'Update vehicle', description: 'Updates an existing vehicle by ID. Admin only. All fields are optional.' })
   async update(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) vehicle: UpdateVehicleDto) {
     return this.VehicleServise.update(id, vehicle);
   }
 
-  /**
-   * vehicle delete request handler function
-   * @param id vehicle id
-   * @returns true if vehicle deleted success, false if not
-   */
   @Delete(':id')
+  @Roles(Role.Admin)
+  @ApiOperation({ summary: 'Delete vehicle', description: 'Deletes a vehicle by ID. Returns true if successful' })
   async delete(@Param('id', ParseIntPipe) id: number) {
     return await this.VehicleServise.delete(id);
   }

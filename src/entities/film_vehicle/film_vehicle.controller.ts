@@ -1,6 +1,6 @@
 import { Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { FilmVehicleService } from './film_vehicle.service';
-import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FilmVehicleDto } from './film_vehicle.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
 import { Roles } from 'src/decorators/role.decorator';
@@ -16,14 +16,22 @@ export class FilmVehicleController {
 
   @Post()
   @Roles(Role.Admin)
-  @ApiBody({ type: FilmVehicleDto })
+  @ApiBody({ type: FilmVehicleDto, description: 'Film and Vehicle IDs to link' })
+  @ApiOperation({
+    summary: 'Assign a vehicle to a film',
+    description: 'Creates a link between a film and a vehicle. Admin only.',
+  })
   async create(data: FilmVehicleDto) {
     return await this.filmVehicleService.create(data);
   }
 
   @Delete()
   @Roles(Role.Admin)
-  @ApiBody({ type: FilmVehicleDto })
+  @ApiBody({ type: FilmVehicleDto, description: 'Film and Vehicle IDs to unlink' })
+  @ApiOperation({
+    summary: 'Remove a vehicle from a film',
+    description: 'Deletes the link between a film and a vehicle. Admin only.',
+  })
   async delete(data: FilmVehicleDto) {
     return await this.filmVehicleService.delete(data);
   }

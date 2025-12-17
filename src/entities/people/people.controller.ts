@@ -4,7 +4,7 @@ import { People } from './people.entity';
 import { CreatePeopleDto } from './dto/create-people.dto';
 import { UpdatePeopleDto } from './dto/update-people.dto';
 
-import { ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import * as path from 'path';
 import * as fs from 'fs';
 import { AuthGuard } from 'src/auth/guards/auth.guards';
@@ -19,17 +19,14 @@ import { RoleGuard } from 'src/auth/guards/role.guards';
 export class PeopleController {
   constructor(private readonly peopleService: PeopleService) {}
 
-  /**
-   *function request handler get to endpoint people.
-   *if pagination parameters are not specified, default parameters will be used
-   * @param page page number
-   * @param limit number of objects on one page
-   * @returns array of people entity
-   */
   @Get()
   @Roles(Role.Admin, Role.User)
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiOperation({
+    summary: 'Get list of people',
+    description: 'Returns all people or a paginated list',
+  })
   async get(
     @Query('page', new ParseIntPipe({ optional: true })) page?: number,
     @Query('limit', new ParseIntPipe({ optional: true })) limit?: number,
@@ -40,13 +37,12 @@ export class PeopleController {
     return this.peopleService.getSeveral(page || 1, limit || 10);
   }
 
-  /**
-   * function processes the request with the id parameter
-   * @param id people id
-   * @returns entity people if there is a match by id, null if there is no corresponding id in the database
-   */
   @Get(':id')
   @Roles(Role.Admin, Role.User)
+  @ApiOperation({
+    summary: 'Get a single person by ID',
+    description: 'Returns one person if exists, otherwise throws 404',
+  })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<People> {
     const result = await this.peopleService.getOne(id);
 
@@ -57,25 +53,24 @@ export class PeopleController {
 
   //alows from admin only
 
-  /**
-   *The function processes a request to create a new person in the database.
-   * @param persone object with fields that correspond to CreatePeopleDto
-   * @returns void
-   */
   @Post()
   @Roles(Role.Admin)
+  @Post()
+  @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Create a new person',
+    description: 'Adds a new person to the database. Admin only',
+  })
   async create(@Body() persone: CreatePeopleDto) {
     return await this.peopleService.create(persone);
   }
 
-  /**
-   *put query handler function for editing entities people
-   * @param id people ID to which changes need to be made
-   * @param persone object with new values for a specific persone
-   * @returnsa persone with new meanings
-   */
   @Put(':id')
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Update an existing person',
+    description: 'Updates a person by ID with provided data. Admin only. All fields are optional.',
+  })
   async update(@Param('id', ParseIntPipe) id: number, @Body() persone: UpdatePeopleDto) {
     const result = await this.peopleService.update(id, persone);
 
@@ -84,13 +79,12 @@ export class PeopleController {
     return result;
   }
 
-  /**
-   * people delete request handler function
-   * @param id persone id
-   * @returns true if people deleted success, false if not
-   */
   @Delete(':id')
   @Roles(Role.Admin)
+  @ApiOperation({
+    summary: 'Delete a person by ID',
+    description: 'Deletes a person from the database and removes uploaded files. Admin only',
+  })
   async delete(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
     fs.rm(path.join(process.cwd(), 'uploads', 'people', `${String(id)}`), { recursive: true, force: true }, (err) => {
       if (err) console.log(err);
